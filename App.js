@@ -1,55 +1,54 @@
 import React from 'react';
-import logo from './logo.svg';
 import './index.css';
+import "moment-timezone"
+import { render } from '@testing-library/react';
+//import React, { Component } from 'react';
+
 
 function App() {
 
-    const api= {
-        key: "",
-        base: "https://api.openweathermap.org/data/2.5/"
-    }
+  getWeather = () => {
+      const zip = document.getElementById("zip").nodeValue;
 
-    const [query, setQuery] = useState(' ');
-    const [weather, setWeather] = useState({ });
-
-    const search = evt => {
-        if (evt.key === "Enter") {
-          fetch('${api.base}weather?q=${query}&units=metric&APPID=${api.key}');
-            then(res => res.json());
-            then(result => {setWeather(result); setQuery(' ');});
+    // Where we're fetching data from
+      fetch("https://api.openweathermap.org/data/2.5/weather?zip=" + zip + 
+        ",us&appid=" + process.env.REACT_APP_API_KEY + "&units=imperial")
+       
+      // We get the API response and receive data in JSON format...
+      .then((response) => {
+        if (response.status !== 200) {
+          console.log("There was a problem. Status Code: " + response.status
+          );
         }
-    }
+      
+      // ...then we update the users state
+        response.json().then((data) => {
+          console.log(data);
+          this.setState({
+            temperatures: data.main.temp,
+            feels_like: data.main.feels_like,
+            city: data.name,
+            timezone: data,
+          });
+        });
+      })
+      // Catch any errors we hit and update the app
+      .catch(error => this.setState({ error, isLoading: false }));
+  };
 
-   
-
-    const dateBuilder = (d) => {
-        let months= ["January","February","March","April","May","June","July","August","September","October","November","December"];
-        let days= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-        let day= days[d.getDay()];
-        let date= d.getDate();
-        let month= months[d.getMonth()];
-        let year= d.getFullYear();
-
-        return `${day} ${date} ${month} ${year}`
-    }
-  return (
-  
-    <div className="app">
-        <main>
-            <div className="search-box">
-                <input type="text" className="search-bar" placeholder="Enter a City Name" />
-            </div>
-
-            <div className="location-box">
-                <div className="location">Concord, US</div>
-                    <div className="date">{dateBuilder(new Date())}</div>
-            </div>
-        </main>
-    </div>
-  )
+  render() (
+      return (
+        <div>
+          <div>
+              <input type="text" placeholder="Enter City Zip Code" id=" " />;
+              <button onClick={this.getWeather}></button>;
+          </div>
+          <span id="temp">{this.state.temp}</span>;
+          <span id="feels">{this.state.feels_like}</span>;
+          <span id="city">{this.state.city}</span>;
+          <h3>{this.state.time}</h3>;
+        </div>
+      );
+  );
 }
-
-
-
-
 export default App;
